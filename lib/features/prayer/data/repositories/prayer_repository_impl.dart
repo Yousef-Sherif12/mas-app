@@ -19,6 +19,12 @@ class PrayerRepositoryImpl implements PrayerRepository {
       _dataSource.listenToIqamaTimes();
 
   @override
+  Future<int> getHijriOffset() => _dataSource.getHijriOffset();
+
+  @override
+  Stream<int> listenToHijriOffset() => _dataSource.listenToHijriOffset();
+
+  @override
   Future<({String? prayerName, DateTime? triggeredAt})>
       loadSavedAdhanState() async {
     final prefs = await SharedPreferences.getInstance();

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:masjid_app/core/enums/app_state_enum.dart';
+import 'package:masjid_app/core/utils/date_helper.dart';
 import 'package:masjid_app/features/prayer/domain/repositories/prayer_repository.dart';
 import 'package:masjid_app/features/prayer/presentation/cubit/prayer_state.dart';
 
@@ -13,6 +14,7 @@ class PrayerCubit extends Cubit<PrayerState> {
   Timer? _adhanDelayTimer;
   Timer? _iqamaExitTimer;
   StreamSubscription<Map<String, int>>? _iqamaSubscription;
+  StreamSubscription<int>? _hijriOffsetSubscription;
 
   DateTime? _lastLoadedDay;
   DateTime? _adhanTriggeredAt;
@@ -47,6 +49,8 @@ class PrayerCubit extends Cubit<PrayerState> {
   Future<void> init() async {
     final prayers = await _repository.getTodayPrayers();
     final iqama = await _repository.getIqamaTimes();
+    final hijriOffset = await _repository.getHijriOffset();
+    DateHelper.hijriOffset = hijriOffset;
 
     if (isClosed) return;
 
@@ -54,11 +58,13 @@ class PrayerCubit extends Cubit<PrayerState> {
       state.copyWith(
         todayPrayerData: prayers,
         iqamaTimes: iqama,
+        hijriOffset: hijriOffset,
         countdown: _repository.calculateCountdown(prayers),
       ),
     );
 
     _listenToIqamaChanges();
+    _listenToHijriOffsetChanges();
     _startClockTimer();
     await _restoreIqamaCountdownIfNeeded();
   }
@@ -68,6 +74,16 @@ class PrayerCubit extends Cubit<PrayerState> {
     _iqamaSubscription = _repository.listenToIqamaTimes().listen((newIqama) {
       if (isClosed || newIqama.isEmpty) return;
       emit(state.copyWith(iqamaTimes: newIqama));
+    });
+  }
+
+  void _listenToHijriOffsetChanges() {
+    _hijriOffsetSubscription?.cancel();
+    _hijriOffsetSubscription =
+        _repository.listenToHijriOffset().listen((newOffset) {
+      if (isClosed) return;
+      DateHelper.hijriOffset = newOffset;
+      emit(state.copyWith(hijriOffset: newOffset));
     });
   }
 
@@ -448,6 +464,7 @@ class PrayerCubit extends Cubit<PrayerState> {
     _adhanDelayTimer?.cancel();
     _iqamaExitTimer?.cancel();
     _iqamaSubscription?.cancel();
+    _hijriOffsetSubscription?.cancel();
     try {
       await _audioPlayer?.dispose();
     } catch (_) {}

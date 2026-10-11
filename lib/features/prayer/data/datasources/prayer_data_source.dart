@@ -116,4 +116,37 @@ class PrayerDataSource {
       return parsed;
     });
   }
+
+  Future<int> getHijriOffset() async {
+    const cacheKey = 'cache_hijri_offset';
+    final prefs = await SharedPreferences.getInstance();
+    try {
+      final doc = await _db
+          .collection('settings')
+          .doc('display_settings')
+          .get()
+          .timeout(const Duration(seconds: 5));
+      final offset = (doc.data()?['hijri_offset'] as num?)?.toInt();
+      if (offset != null) {
+        await prefs.setInt(cacheKey, offset);
+        return offset;
+      }
+    } catch (_) {}
+    return prefs.getInt(cacheKey) ?? 0;
+  }
+
+  Stream<int> listenToHijriOffset() {
+    return _db
+        .collection('settings')
+        .doc('display_settings')
+        .snapshots()
+        .asyncMap((snapshot) async {
+      final offset = (snapshot.data()?['hijri_offset'] as num?)?.toInt() ?? 0;
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setInt('cache_hijri_offset', offset);
+      } catch (_) {}
+      return offset;
+    });
+  }
 }

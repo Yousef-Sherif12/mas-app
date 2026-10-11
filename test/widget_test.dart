@@ -39,6 +39,9 @@ class FakePrayerRepository implements PrayerRepository {
   String currentPrayerNameOverride;
   final StreamController<Map<String, int>> iqamaStreamController =
       StreamController<Map<String, int>>.broadcast();
+  final StreamController<int> hijriOffsetStreamController =
+      StreamController<int>.broadcast();
+  int hijriOffset = 0;
 
   FakePrayerRepository({
     this.todayPrayers,
@@ -63,6 +66,12 @@ class FakePrayerRepository implements PrayerRepository {
 
   @override
   Stream<Map<String, int>> listenToIqamaTimes() => iqamaStreamController.stream;
+
+  @override
+  Future<int> getHijriOffset() async => hijriOffset;
+
+  @override
+  Stream<int> listenToHijriOffset() => hijriOffsetStreamController.stream;
 
   @override
   Future<({String? prayerName, DateTime? triggeredAt})>
@@ -728,4 +737,10 @@ class _NoopPrayerDataSource implements PrayerDataSource {
 
   @override
   Stream<Map<String, int>> listenToIqamaTimes() => const Stream.empty();
+
+  @override
+  Future<int> getHijriOffset() async => 0;
+
+  @override
+  Stream<int> listenToHijriOffset() => const Stream.empty();
 }

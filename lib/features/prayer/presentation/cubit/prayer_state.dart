@@ -11,6 +11,7 @@ class PrayerState {
   final Map<String, dynamic> countdown;
   final bool isManualAdhkar;
   final bool isManualIqama;
+  final int hijriOffset;
 
   const PrayerState({
     this.todayPrayerData,
@@ -22,6 +23,7 @@ class PrayerState {
     this.countdown = const {"name": "-", "h": 0, "m": 0, "s": 0},
     this.isManualAdhkar = false,
     this.isManualIqama = false,
+    this.hijriOffset = 0,
   });
 
   PrayerState copyWith({
@@ -34,6 +36,7 @@ class PrayerState {
     Map<String, dynamic>? countdown,
     bool? isManualAdhkar,
     bool? isManualIqama,
+    int? hijriOffset,
   }) {
     return PrayerState(
       todayPrayerData: todayPrayerData ?? this.todayPrayerData,
@@ -45,6 +48,7 @@ class PrayerState {
       countdown: countdown ?? this.countdown,
       isManualAdhkar: isManualAdhkar ?? this.isManualAdhkar,
       isManualIqama: isManualIqama ?? this.isManualIqama,
+      hijriOffset: hijriOffset ?? this.hijriOffset,
     );
   }
 }
