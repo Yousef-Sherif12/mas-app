@@ -25,6 +25,9 @@ class PrayerRepositoryImpl implements PrayerRepository {
   Stream<int> listenToHijriOffset() => _dataSource.listenToHijriOffset();
 
   @override
+  Stream<double> listenToDateFontSize() => _dataSource.listenToDateFontSize();
+
+  @override
   Future<({String? prayerName, DateTime? triggeredAt})>
       loadSavedAdhanState() async {
     final prefs = await SharedPreferences.getInstance();

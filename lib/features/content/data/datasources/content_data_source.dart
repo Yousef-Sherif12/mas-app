@@ -59,7 +59,7 @@ class ContentDataSource {
       _versionCheckedThisSession = true;
 
       if (remoteVersion > localVersion) {
-        await prefs.setInt(versionKey, remoteVersion);
+        // Do not update prefs here so the listener detects remoteVersion > localVersion and clears cache
         _hasUpdateThisSession = true;
         return true;
       }
@@ -73,11 +73,20 @@ class ContentDataSource {
     }
   }
 
-  List<MessageModel> _parseMessages(List<Map<String, dynamic>> data) {
+  List<MessageModel> _parseMessages(
+    List<Map<String, dynamic>> data, {
+    String? defaultType,
+  }) {
     return data
         .map((e) {
           try {
-            return MessageModel.fromMap(e);
+            final item = Map<String, dynamic>.from(e);
+            if ((item['type'] == null ||
+                    item['type'].toString().trim().isEmpty) &&
+                defaultType != null) {
+              item['type'] = defaultType;
+            }
+            return MessageModel.fromMap(item);
           } catch (_) {
             return const MessageModel(type: '', text: '');
           }
@@ -89,6 +98,7 @@ class ContentDataSource {
   String _getLocalPath(String collection) {
     const paths = {
       'quran_messages': 'assets/jsons/quran_messages.json',
+      'hadith': 'assets/jsons/hadith_messages.json',
       'hadith_messages': 'assets/jsons/hadith_messages.json',
       'prayer_from_quran': 'assets/jsons/prayer_from_quran.json',
       'thaqil': 'assets/jsons/thaqil.json',
@@ -99,7 +109,10 @@ class ContentDataSource {
     return paths[collection] ?? '';
   }
 
-  Future<List<MessageModel>> _loadFromLocalJson(String path) async {
+  Future<List<MessageModel>> _loadFromLocalJson(
+    String path, {
+    String? defaultType,
+  }) async {
     if (path.isEmpty) return [];
     try {
       final ByteData data = await rootBundle.load(path);
@@ -107,15 +120,26 @@ class ContentDataSource {
       final List<dynamic> jsonData = json.decode(response) as List<dynamic>;
       return _parseMessages(
         jsonData.map((e) => Map<String, dynamic>.from(e as Map)).toList(),
+        defaultType: defaultType,
       );
     } catch (e) {
       return [];
     }
   }
 
+  String _inferDefaultType(String collection) {
+    final lower = collection.toLowerCase();
+    if (lower.contains('quran')) return 'quran';
+    if (lower.contains('hadith')) return 'hadith';
+    if (lower.contains('prayer')) return 'prayer_from_quran';
+    if (lower.contains('thaqil')) return 'thaqil';
+    return lower;
+  }
+
   Future<List<MessageModel>> getMessages(String collection) async {
     final cacheKey = 'cache_$collection';
     const versionKey = 'messages_version';
+    final defaultType = _inferDefaultType(collection);
 
     final hasUpdate = await _hasNewVersion(versionKey);
     final cached = await _loadFromCache(cacheKey);
@@ -132,16 +156,19 @@ class ContentDataSource {
             .map((doc) => {'id': doc.id, ...doc.data()})
             .toList();
         await _saveToCache(cacheKey, data);
-        return _parseMessages(data);
+        return _parseMessages(data, defaultType: defaultType);
       } catch (e) {
         if (cached != null && cached.isNotEmpty) {
-          return _parseMessages(cached);
+          return _parseMessages(cached, defaultType: defaultType);
         }
-        return _loadFromLocalJson(_getLocalPath(collection));
+        return _loadFromLocalJson(
+          _getLocalPath(collection),
+          defaultType: defaultType,
+        );
       }
     }
 
-    return _parseMessages(cached);
+    return _parseMessages(cached, defaultType: defaultType);
   }
 
   Future<List<Map<String, dynamic>>> getActiveCollections() async {
@@ -156,7 +183,10 @@ class ContentDataSource {
           .timeout(const Duration(seconds: 5));
 
       final data = snapshot.docs
-          .map((doc) => {'id': doc.id, ...doc.data()})
+          .map((doc) => {
+                ...doc.data(),
+                'id': (doc.data()['id'] ?? doc.id).toString(),
+              })
           .toList();
 
       final prefs = await SharedPreferences.getInstance();
@@ -168,14 +198,15 @@ class ContentDataSource {
       final cached = prefs.getString(cacheKey);
       if (cached != null) {
         return List<Map<String, dynamic>>.from(
-          (jsonDecode(cached) as List).map((e) => Map<String, dynamic>.from(e as Map)),
+          (jsonDecode(cached) as List)
+              .map((e) => Map<String, dynamic>.from(e as Map)),
         );
       }
       return [
-        {'id': 'quran_messages', 'label': 'قرآن', 'order': 0},
-        {'id': 'hadith_messages', 'label': 'حديث', 'order': 1},
-        {'id': 'thaqil', 'label': 'ثقل', 'order': 2},
-        {'id': 'prayer_from_quran', 'label': 'دعاء', 'order': 3},
+        {'id': 'quran_messages', 'label': 'قال الله تعالى', 'order': 0},
+        {'id': 'hadith', 'label': 'قال النبي ﷺ', 'order': 1},
+        {'id': 'thaqil', 'label': 'ثَقِّلْ مَوَازِينَكَ', 'order': 2},
+        {'id': 'prayer_from_quran', 'label': 'أدعية من القرآن والسنة', 'order': 3},
       ];
     }
   }
@@ -192,7 +223,10 @@ class ContentDataSource {
     return _db.collection('collections_config').snapshots().map((snapshot) {
       final activeDocs = snapshot.docs
           .where((doc) => doc.data()['active'] == true)
-          .map((doc) => {'id': doc.id, ...doc.data()})
+          .map((doc) => {
+                ...doc.data(),
+                'id': (doc.data()['id'] ?? doc.id).toString(),
+              })
           .toList()
         ..sort((a, b) => ((a['order'] ?? 0) as num)
             .compareTo((b['order'] ?? 0) as num));
@@ -206,5 +240,16 @@ class ContentDataSource {
         .doc('live_display')
         .snapshots()
         .map((snapshot) => snapshot.data());
+  }
+
+  Stream<String> listenToContentFontFamily() {
+    return _db
+        .collection('settings')
+        .doc('display_settings')
+        .snapshots()
+        .map((snapshot) {
+      final font = snapshot.data()?['content_font_family']?.toString() ?? 'Roboto';
+      return (font == 'Tajawal' || font == 'Roboto') ? font : 'Roboto';
+    });
   }
 }

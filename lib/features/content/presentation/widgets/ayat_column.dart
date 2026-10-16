@@ -14,6 +14,7 @@ class AyatColumn extends StatelessWidget {
     required this.adhkarIndex,
     required this.currentTheme,
     required this.collectionLabel,
+    this.fontFamily = 'Roboto',
   });
 
   final String collectionLabel;
@@ -22,6 +23,7 @@ class AyatColumn extends StatelessWidget {
   final List<Message> adhkarMessages;
   final int adhkarIndex;
   final AppThemeEnum currentTheme;
+  final String fontFamily;
 
   List<TextSpan> _parseText(String text) {
     final List<TextSpan> spans = [];
@@ -87,14 +89,17 @@ class AyatColumn extends StatelessWidget {
                 children: [
                   Text(
                     isAdhkarMode
-                        ? displayMessage?.title ?? "أذكار"
-                        : collectionLabel.isNotEmpty
-                        ? collectionLabel
-                        : displayMessage?.title ?? '',
+                        ? (displayMessage?.title.isNotEmpty == true
+                            ? displayMessage!.title
+                            : "أذكار")
+                        : (collectionLabel.isNotEmpty
+                            ? collectionLabel
+                            : (displayMessage?.title ?? '')),
                     style: TextStyle(
                       color: textColor,
                       fontWeight: FontWeight.bold,
                       fontSize: 35,
+                      fontFamily: fontFamily == 'Tajawal' ? 'Tajawal' : null,
                     ),
                   ),
                 ],
@@ -125,15 +130,13 @@ class AyatColumn extends StatelessWidget {
                           const end = Offset.zero;
 
                           return SlideTransition(
-                            position: Tween<Offset>(
-                              begin: begin,
-                              end: end,
-                            ).animate(
-                              CurvedAnimation(
-                                parent: animation,
-                                curve: Curves.easeInOutQuart,
-                              ),
-                            ),
+                            position: Tween<Offset>(begin: begin, end: end)
+                                .animate(
+                                  CurvedAnimation(
+                                    parent: animation,
+                                    curve: Curves.easeInOutQuart,
+                                  ),
+                                ),
                             child: FadeTransition(
                               opacity: animation,
                               child: child,
@@ -164,7 +167,7 @@ class AyatColumn extends StatelessWidget {
                                             ),
                                             style: TextStyle(
                                               color: textColor,
-                                              fontFamily: 'Tajawal',
+                                              fontFamily: fontFamily,
                                               height: 1.4,
                                               fontWeight: FontWeight.bold,
                                               fontSize: displayMessage
@@ -196,6 +199,7 @@ class AyatColumn extends StatelessWidget {
                                               color: textColor,
                                               fontWeight: FontWeight.w500,
                                               fontSize: 18,
+                                              fontFamily: fontFamily == 'Tajawal' ? 'Tajawal' : null,
                                             ),
                                           ),
                                         ),
@@ -213,6 +217,7 @@ class AyatColumn extends StatelessWidget {
                                               color: textColor,
                                               fontWeight: FontWeight.w400,
                                               fontSize: 24,
+                                              fontFamily: fontFamily == 'Tajawal' ? 'Tajawal' : null,
                                             ),
                                           ),
                                         ),

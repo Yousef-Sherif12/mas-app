@@ -21,6 +21,7 @@ class PrayerTimesAndDateColunm extends StatelessWidget {
     required this.appState,
     required this.currentTheme,
     required this.prayerData,
+    this.dateFontSize = 15.0,
   });
 
   final String hijriDate;
@@ -33,6 +34,7 @@ class PrayerTimesAndDateColunm extends StatelessWidget {
   final AppState appState;
   final AppThemeEnum currentTheme;
   final DayPrayer? prayerData;
+  final double dateFontSize;
 
   @override
   Widget build(BuildContext context) {
@@ -61,6 +63,7 @@ class PrayerTimesAndDateColunm extends StatelessWidget {
               day: day,
               fullTime: fullTime,
               currentTheme: currentTheme,
+              dateFontSize: dateFontSize,
             ),
             const SizedBox(height: 4),
             Text(
@@ -105,6 +108,7 @@ class TimeAndDate extends StatelessWidget {
     required this.day,
     required this.fullTime,
     required this.currentTheme,
+    this.dateFontSize = 15.0,
   });
 
   final String hijriDate;
@@ -112,6 +116,7 @@ class TimeAndDate extends StatelessWidget {
   final String day;
   final String fullTime;
   final AppThemeEnum currentTheme;
+  final double dateFontSize;
 
   @override
   Widget build(BuildContext context) {
@@ -125,6 +130,7 @@ class TimeAndDate extends StatelessWidget {
             date: date,
             day: day,
             currentTheme: currentTheme,
+            dateFontSize: dateFontSize,
           ),
           const SizedBox(width: 4),
           DayAndTime(fullTime: fullTime, currentTheme: currentTheme),
@@ -141,12 +147,14 @@ class Date extends StatelessWidget {
     required this.date,
     required this.day,
     required this.currentTheme,
+    this.dateFontSize = 15.0,
   });
 
   final String hijriDate;
   final String date;
   final String day;
   final AppThemeEnum currentTheme;
+  final double dateFontSize;
 
   @override
   Widget build(BuildContext context) {
@@ -157,31 +165,51 @@ class Date extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          Text(
-            day,
-            style: TextStyle(
-              color: textColor,
-              fontWeight: FontWeight.w900,
-              fontSize: 16,
-              height: 1,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              day,
+              maxLines: 1,
+              style: TextStyle(
+                color: textColor,
+                fontWeight: FontWeight.w900,
+                fontSize: dateFontSize + 1,
+                height: 1,
+              ),
             ),
           ),
-          Text(
-            hijriDate,
-            textDirection: TextDirection.rtl,
-            style: TextStyle(
-              color: textColor,
-              fontWeight: FontWeight.w700,
-              fontSize: 15,
+          const SizedBox(height: 2),
+          SizedBox(
+            width: double.infinity,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                hijriDate,
+                textDirection: TextDirection.rtl,
+                maxLines: 1,
+                style: TextStyle(
+                  color: textColor,
+                  fontWeight: FontWeight.w700,
+                  fontSize: dateFontSize,
+                ),
+              ),
             ),
           ),
-          Text(
-            '$dateم',
-            textDirection: TextDirection.rtl,
-            style: TextStyle(
-              color: textColor,
-              fontWeight: FontWeight.w700,
-              fontSize: 15,
+          const SizedBox(height: 2),
+          SizedBox(
+            width: double.infinity,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                '$dateم',
+                textDirection: TextDirection.rtl,
+                maxLines: 1,
+                style: TextStyle(
+                  color: textColor,
+                  fontWeight: FontWeight.w700,
+                  fontSize: dateFontSize,
+                ),
+              ),
             ),
           ),
         ],

@@ -9,6 +9,7 @@ abstract class ContentRepository {
   Stream<int> listenToMessagesVersion();
   Stream<List<Map<String, dynamic>>> listenToCollectionsConfig();
   Stream<Map<String, dynamic>?> listenToLiveDisplay();
+  Stream<String> listenToContentFontFamily();
   Future<int> getLocalMessagesVersion();
   Future<void> setLocalMessagesVersion(int version);
   Future<void> clearAllMessageCaches();

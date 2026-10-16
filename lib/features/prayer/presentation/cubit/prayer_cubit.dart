@@ -15,6 +15,7 @@ class PrayerCubit extends Cubit<PrayerState> {
   Timer? _iqamaExitTimer;
   StreamSubscription<Map<String, int>>? _iqamaSubscription;
   StreamSubscription<int>? _hijriOffsetSubscription;
+  StreamSubscription<double>? _dateFontSizeSubscription;
 
   DateTime? _lastLoadedDay;
   DateTime? _adhanTriggeredAt;
@@ -65,6 +66,7 @@ class PrayerCubit extends Cubit<PrayerState> {
 
     _listenToIqamaChanges();
     _listenToHijriOffsetChanges();
+    _listenToDateFontSizeChanges();
     _startClockTimer();
     await _restoreIqamaCountdownIfNeeded();
   }
@@ -84,6 +86,15 @@ class PrayerCubit extends Cubit<PrayerState> {
       if (isClosed) return;
       DateHelper.hijriOffset = newOffset;
       emit(state.copyWith(hijriOffset: newOffset));
+    });
+  }
+
+  void _listenToDateFontSizeChanges() {
+    _dateFontSizeSubscription?.cancel();
+    _dateFontSizeSubscription =
+        _repository.listenToDateFontSize().listen((newSize) {
+      if (isClosed) return;
+      emit(state.copyWith(dateFontSize: newSize));
     });
   }
 
@@ -465,6 +476,7 @@ class PrayerCubit extends Cubit<PrayerState> {
     _iqamaExitTimer?.cancel();
     _iqamaSubscription?.cancel();
     _hijriOffsetSubscription?.cancel();
+    _dateFontSizeSubscription?.cancel();
     try {
       await _audioPlayer?.dispose();
     } catch (_) {}

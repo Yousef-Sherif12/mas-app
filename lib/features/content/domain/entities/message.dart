@@ -18,7 +18,7 @@ class Message {
   });
 
   String get title {
-    switch (type) {
+    switch (type.trim().toLowerCase()) {
       case "quran":
         return "قال الله تعالى";
       case "hadith":
@@ -31,7 +31,8 @@ class Message {
         return "أذكار الصباح";
       case "adhkar_masa":
         return "أذكار المساء";
-      case "Prayer_From_Quran":
+      case "prayer_from_quran":
+      case "prayer":
         return "أدعية من القرآن والسنة";
       case "thaqil":
         return "ثَقِّلْ مَوَازِينَكَ";

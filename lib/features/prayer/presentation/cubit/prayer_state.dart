@@ -12,6 +12,7 @@ class PrayerState {
   final bool isManualAdhkar;
   final bool isManualIqama;
   final int hijriOffset;
+  final double dateFontSize;
 
   const PrayerState({
     this.todayPrayerData,
@@ -24,6 +25,7 @@ class PrayerState {
     this.isManualAdhkar = false,
     this.isManualIqama = false,
     this.hijriOffset = 0,
+    this.dateFontSize = 15.0,
   });
 
   PrayerState copyWith({
@@ -37,6 +39,7 @@ class PrayerState {
     bool? isManualAdhkar,
     bool? isManualIqama,
     int? hijriOffset,
+    double? dateFontSize,
   }) {
     return PrayerState(
       todayPrayerData: todayPrayerData ?? this.todayPrayerData,
@@ -49,6 +52,7 @@ class PrayerState {
       isManualAdhkar: isManualAdhkar ?? this.isManualAdhkar,
       isManualIqama: isManualIqama ?? this.isManualIqama,
       hijriOffset: hijriOffset ?? this.hijriOffset,
+      dateFontSize: dateFontSize ?? this.dateFontSize,
     );
   }
 }

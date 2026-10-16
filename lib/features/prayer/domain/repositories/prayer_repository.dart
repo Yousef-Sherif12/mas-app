@@ -6,6 +6,7 @@ abstract class PrayerRepository {
   Stream<Map<String, int>> listenToIqamaTimes();
   Future<int> getHijriOffset();
   Stream<int> listenToHijriOffset();
+  Stream<double> listenToDateFontSize();
   Future<({String? prayerName, DateTime? triggeredAt})> loadSavedAdhanState();
   Future<void> saveAdhanState(String prayerName, DateTime triggeredAt);
   Future<void> clearAdhanState();

@@ -149,4 +149,16 @@ class PrayerDataSource {
       return offset;
     });
   }
+
+  Stream<double> listenToDateFontSize() {
+    return _db
+        .collection('settings')
+        .doc('display_settings')
+        .snapshots()
+        .map((snapshot) {
+      final size = snapshot.data()?['date_font_size'];
+      if (size is num) return size.toDouble();
+      return 15.0;
+    });
+  }
 }

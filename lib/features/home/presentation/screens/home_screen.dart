@@ -51,8 +51,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed && mounted) {
-      // إعادة تشغيل الفيديو وطلب الـ Focus فور فتح شاشة التلفزيون من جديد
+      // إعادة تشغيل الفيديو والدوران وطلب الـ Focus فور فتح شاشة التلفزيون من جديد
       context.read<ThemeCubit>().ensureVideoPlaying();
+      context.read<ContentCubit>().startRotationTimer();
       _focusNode.requestFocus();
     }
   }
@@ -215,6 +216,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                     appState: prayerState.appState,
                                     currentTheme: currentTheme,
                                     prayerData: prayerState.todayPrayerData,
+                                    dateFontSize: prayerState.dateFontSize,
                                   );
                                 },
                               ),
@@ -228,6 +230,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                     currentTheme: currentTheme,
                                     collectionLabel:
                                         contentState.currentCollectionLabel,
+                                    fontFamily: contentState.contentFontFamily,
                                   );
                                 },
                               ),

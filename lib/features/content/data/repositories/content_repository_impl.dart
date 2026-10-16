@@ -41,6 +41,10 @@ class ContentRepositoryImpl implements ContentRepository {
       _dataSource.listenToLiveDisplay();
 
   @override
+  Stream<String> listenToContentFontFamily() =>
+      _dataSource.listenToContentFontFamily();
+
+  @override
   Future<int> getLocalMessagesVersion() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getInt('messages_version') ?? 0;

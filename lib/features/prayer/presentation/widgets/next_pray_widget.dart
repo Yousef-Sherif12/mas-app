@@ -55,28 +55,42 @@ class NextPray extends StatelessWidget {
   Widget _buildIqamaView() {
     final textColor = currentTheme.textColor;
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
+      padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Text(
-            iqamaCountdown,
-            style: TextStyle(
-              color: textColor,
-              fontWeight: FontWeight.bold,
-              fontSize: 40,
-              letterSpacing: 2,
+          Flexible(
+            flex: 6,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Text(
+                iqamaCountdown,
+                style: TextStyle(
+                  color: textColor,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 40,
+                  letterSpacing: 2,
+                ),
+              ),
             ),
           ),
-          const Spacer(),
-          Text(
-            'الباقي على\nالإقامة',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: textColor,
-              fontWeight: FontWeight.w900,
-              fontSize: 20,
+          const SizedBox(width: 6),
+          Flexible(
+            flex: 4,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerRight,
+              child: Text(
+                'الباقي على\nالإقامة',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: textColor,
+                  fontWeight: FontWeight.w900,
+                  fontSize: 20,
+                ),
+              ),
             ),
           ),
         ],
@@ -87,30 +101,45 @@ class NextPray extends StatelessWidget {
   Widget _buildNextPrayView() {
     final textColor = currentTheme.textColor;
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 5),
+      padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Directionality(
-            textDirection: TextDirection.ltr,
-            child: Text(
-              formatDigitalTime(hours, min, sec),
-              style: TextStyle(
-                color: textColor,
-                fontWeight: FontWeight.w900,
-                fontSize: 40,
-                letterSpacing: 2,
+          Flexible(
+            flex: 6,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Directionality(
+                textDirection: TextDirection.ltr,
+                child: Text(
+                  formatDigitalTime(hours, min, sec),
+                  style: TextStyle(
+                    color: textColor,
+                    fontWeight: FontWeight.w900,
+                    fontSize: 40,
+                    letterSpacing: 2,
+                  ),
+                ),
               ),
             ),
           ),
-          const SizedBox(width: 10),
-          Text(
-            nextPray,
-            style: TextStyle(
-              color: textColor,
-              fontWeight: FontWeight.w900,
-              fontSize: 22,
+          const SizedBox(width: 8),
+          Flexible(
+            flex: 4,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerRight,
+              child: Text(
+                nextPray,
+                maxLines: 1,
+                style: TextStyle(
+                  color: textColor,
+                  fontWeight: FontWeight.w900,
+                  fontSize: 22,
+                ),
+              ),
             ),
           ),
         ],

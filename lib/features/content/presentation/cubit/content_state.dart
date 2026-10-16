@@ -17,6 +17,7 @@ class ContentState {
 
   final Message? liveMessage;
   final bool isLiveDisplay;
+  final String contentFontFamily;
 
   const ContentState({
     this.activeCollections = const [],
@@ -32,6 +33,7 @@ class ContentState {
     this.currentAdhkarType = AdhkarType.salah,
     this.liveMessage,
     this.isLiveDisplay = false,
+    this.contentFontFamily = 'Roboto',
   });
 
   Message? get currentMainMessage {
@@ -48,14 +50,19 @@ class ContentState {
       isLiveDisplay ? liveMessage : currentMainMessage;
 
   String get currentCollectionLabel {
+    if (isLiveDisplay && liveMessage != null) {
+      if (liveMessage!.title.isNotEmpty) return liveMessage!.title;
+    }
     if (activeCollectionKeys.isEmpty) return '';
     final key =
         activeCollectionKeys[contentTypeIndex % activeCollectionKeys.length];
     final col = activeCollections.firstWhere(
-      (c) => c['id'] == key,
+      (c) => c['id']?.toString() == key,
       orElse: () => {'label': ''},
     );
-    return col['label']?.toString() ?? '';
+    final label = col['label']?.toString() ?? '';
+    if (label.isNotEmpty) return label;
+    return currentMainMessage?.title ?? '';
   }
 
   ContentState copyWith({
@@ -73,6 +80,7 @@ class ContentState {
     Message? liveMessage,
     bool clearLiveMessage = false,
     bool? isLiveDisplay,
+    String? contentFontFamily,
   }) {
     return ContentState(
       activeCollections: activeCollections ?? this.activeCollections,
@@ -88,6 +96,7 @@ class ContentState {
       currentAdhkarType: currentAdhkarType ?? this.currentAdhkarType,
       liveMessage: clearLiveMessage ? null : (liveMessage ?? this.liveMessage),
       isLiveDisplay: isLiveDisplay ?? this.isLiveDisplay,
+      contentFontFamily: contentFontFamily ?? this.contentFontFamily,
     );
   }
 }

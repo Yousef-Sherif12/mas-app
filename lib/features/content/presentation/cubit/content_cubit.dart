@@ -12,10 +12,12 @@ class ContentCubit extends Cubit<ContentState> {
 
   Timer? _rotationTimer;
   Timer? _adhkarTimer;
+  Timer? _watchdogTimer;
 
   StreamSubscription<int>? _versionSubscription;
   StreamSubscription<List<Map<String, dynamic>>>? _collectionsSubscription;
   StreamSubscription<Map<String, dynamic>?>? _liveDisplaySubscription;
+  StreamSubscription<String>? _displaySettingsSubscription;
 
   ContentCubit(
     this._repository, {
@@ -27,11 +29,37 @@ class ContentCubit extends Cubit<ContentState> {
     _listenToVersionChanges();
     _listenToCollectionsChanges();
     _listenToLiveDisplay();
+    _listenToDisplaySettings();
+    _startWatchdogTimer();
+  }
+
+  void _startWatchdogTimer() {
+    _watchdogTimer?.cancel();
+    _watchdogTimer = Timer.periodic(const Duration(seconds: 30), (_) {
+      if (isClosed || state.isLiveDisplay) return;
+      if (_rotationTimer == null || !_rotationTimer!.isActive) {
+        startRotationTimer();
+      }
+    });
+  }
+
+  void _listenToDisplaySettings() {
+    _displaySettingsSubscription?.cancel();
+    _displaySettingsSubscription =
+        _repository.listenToContentFontFamily().listen((font) {
+      if (isClosed) return;
+      if (font != state.contentFontFamily) {
+        emit(state.copyWith(contentFontFamily: font));
+      }
+    });
   }
 
   Future<void> _loadAllMessages() async {
     final activeCollections = await _repository.getActiveCollections();
-    final keys = activeCollections.map((c) => c['id'] as String).toList();
+    final keys = activeCollections
+        .map((c) => (c['id'] ?? '').toString())
+        .where((k) => k.isNotEmpty)
+        .toList();
 
     final Map<String, List<Message>> messages = {};
     for (final key in keys) {
@@ -82,7 +110,10 @@ class ContentCubit extends Cubit<ContentState> {
     _collectionsSubscription =
         _repository.listenToCollectionsConfig().listen((newActiveDocs) async {
       if (isClosed) return;
-      final keys = newActiveDocs.map((doc) => doc['id'] as String).toList();
+      final keys = newActiveDocs
+          .map((doc) => (doc['id'] ?? '').toString())
+          .where((k) => k.isNotEmpty)
+          .toList();
 
       if (keys.toString() != state.activeCollectionKeys.toString()) {
         await _repository.clearActiveCollectionsCache();
@@ -297,9 +328,11 @@ class ContentCubit extends Cubit<ContentState> {
   Future<void> close() {
     _rotationTimer?.cancel();
     _adhkarTimer?.cancel();
+    _watchdogTimer?.cancel();
     _versionSubscription?.cancel();
     _collectionsSubscription?.cancel();
     _liveDisplaySubscription?.cancel();
+    _displaySettingsSubscription?.cancel();
     return super.close();
   }
 }

@@ -74,6 +74,9 @@ class FakePrayerRepository implements PrayerRepository {
   Stream<int> listenToHijriOffset() => hijriOffsetStreamController.stream;
 
   @override
+  Stream<double> listenToDateFontSize() => Stream.value(15.0);
+
+  @override
   Future<({String? prayerName, DateTime? triggeredAt})>
       loadSavedAdhanState() async {
     return (prayerName: savedPrayerName, triggeredAt: savedTriggeredAt);
@@ -205,6 +208,9 @@ class FakeContentRepository implements ContentRepository {
   @override
   Stream<Map<String, dynamic>?> listenToLiveDisplay() =>
       liveDisplayController.stream;
+
+  @override
+  Stream<String> listenToContentFontFamily() => Stream.value('Roboto');
 
   @override
   Future<int> getLocalMessagesVersion() async => localVersion;
@@ -743,4 +749,7 @@ class _NoopPrayerDataSource implements PrayerDataSource {
 
   @override
   Stream<int> listenToHijriOffset() => const Stream.empty();
+
+  @override
+  Stream<double> listenToDateFontSize() => const Stream.empty();
 }
